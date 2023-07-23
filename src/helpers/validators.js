@@ -19,26 +19,18 @@ import {
   prop,
   compose,
   values,
-  length,
-  lte,
   filter,
   count,
   all,
   converge,
-  and,
   not,
-  dropRepeats,
-  or,
   gte,
-  uniq,
   countBy,
-  remove,
   any,
-  without,
   identity,
+  __,
 } from "ramda";
 import { SHAPES, COLORS } from "../constants";
-import * as validatorsReference from "./validatorsReference";
 
 // Геттеры
 const getStar = prop(SHAPES.STAR);
@@ -68,11 +60,22 @@ const isNotWhiteSquare = compose(isNotWhite, getSquare);
 const isNotWhiteTriangle = compose(isNotWhite, getTriangle);
 const isNotWhiteStar = compose(isNotWhite, getStar);
 const isNotRedStar = compose(isNotRed, getStar);
+const isMoreOrEquals2 = gte(__, 2);
+const isMoreOrEquals3 = gte(__, 3);
 
-const isMoreOrEquals1 = lte(1);
-const isMoreOrEquals2 = lte(2);
-const isMoreOrEquals3 = lte(3);
-const isLessOrEquals2 = gte(2);
+const threeFiguresIsNotWhite = compose(
+  isMoreOrEquals3,
+  count(isNotWhite),
+  values
+);
+const threeFiguresWithSameColor = compose(
+  any(isMoreOrEquals3),
+  values,
+  countBy(identity),
+  filter(isNotWhite),
+  values
+);
+
 const countRed = compose(count(isRed), values);
 const countBlue = compose(count(isBlue), values);
 const countGreen = compose(count(isGreen), values);
@@ -87,11 +90,6 @@ export const validateFieldN1 = allPass([
 // 2. Как минимум две фигуры зеленые.
 export const validateFieldN2 = compose(isMoreOrEquals2, countGreen);
 
-const log = (...args) => {
-  console.log(args);
-  return args;
-};
-
 // 3. Количество красных фигур равно кол-ву синих.
 export const validateFieldN3 = converge(equals, [countRed, countBlue]);
 
@@ -103,12 +101,11 @@ export const validateFieldN4 = allPass([
 ]);
 
 // 5. Три фигуры одного любого цвета кроме белого (четыре фигуры одного цвета – это тоже true).
-export const validateFieldN5 = allPass([
-  compose(isMoreOrEquals3, count(isNotWhite), values),
-  compose(any(isMoreOrEquals3), values, countBy(identity), filter(isNotWhite), values),
-]);
 
-// export const validateFieldN5 = validatorsReference.validateFieldN5
+export const validateFieldN5 = allPass([
+  threeFiguresIsNotWhite,
+  threeFiguresWithSameColor,
+]);
 
 // 6. Ровно две зеленые фигуры (одна из зелёных – это треугольник), плюс одна красная. Четвёртая оставшаяся любого доступного цвета, но не нарушающая первые два условия
 export const validateFieldN6 = allPass([
