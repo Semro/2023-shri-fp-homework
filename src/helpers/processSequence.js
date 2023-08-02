@@ -55,7 +55,7 @@ const isValidRange = compose(
   allPass([isGreaterThan2, isLessThan10]),
   getLength
 );
-const isFloatingNumber = test(/[+-]?([0-9]*[.])?[0-9]+/);
+const isFloatingNumber = test(/^[+-]?([0-9]*[.])?[0-9]+$/);
 const isPositive = compose(not, test(/^-/));
 const isValid = allPass([isValidRange, isFloatingNumber, isPositive]);
 
